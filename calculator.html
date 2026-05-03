@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Program — Quran Arabic Tutor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Amiri&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#071018; --navy-mid:#0F2035; --teal:#1D5C7A;
+  --gold-dark:#8B6914; --gold:#C9A84C; --gold-light:#E8C96A;
+  --cream:#F7F0E3; --deep:#0d1a2a; --text-muted:#8a7a6a;
+  --border:rgba(201,168,76,0.18); --green:#27ae60;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Cormorant Garamond',serif;background:var(--navy);color:var(--cream);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 10%,rgba(201,168,76,0.07) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(29,92,122,0.12) 0%,transparent 50%);pointer-events:none;z-index:0;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(7,16,24,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Cinzel',serif;font-size:0.9rem;letter-spacing:0.1em;color:var(--gold-light);text-decoration:none;display:flex;align-items:center;gap:10px;}
+.nav-back{font-size:0.8rem;letter-spacing:0.08em;color:rgba(201,168,76,0.5);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.2s;}
+.nav-back:hover{color:var(--gold);}
+
+/* HERO */
+.hero{text-align:center;padding:3.5rem 2rem 2rem;position:relative;z-index:1;}
+.hero-label{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:0.8rem;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:600;line-height:1.1;color:#fff;margin-bottom:0.6rem;}
+.hero h1 em{color:var(--gold-light);font-style:italic;}
+.hero p{font-size:1.05rem;color:rgba(247,240,227,0.6);max-width:500px;margin:0 auto;line-height:1.7;}
+.hero-arabic{font-family:'Amiri',serif;font-size:1.3rem;color:rgba(201,168,76,0.4);direction:rtl;margin-top:0.4rem;}
+
+/* TABS */
+.tabs-wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 1.5rem 1.5rem;}
+.tabs{display:flex;gap:0;background:rgba(15,32,53,0.6);border:1px solid var(--border);border-radius:14px;padding:6px;margin-bottom:1.5rem;}
+.tab-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:0.9rem 1rem;border:none;border-radius:10px;background:transparent;color:rgba(247,240,227,0.5);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.25s;}
+.tab-btn .tab-icon{font-size:1.3rem;}
+.tab-btn .tab-text{text-align:left;}
+.tab-btn .tab-title{display:block;font-size:0.8rem;letter-spacing:0.1em;}
+.tab-btn .tab-sub{display:block;font-size:0.68rem;letter-spacing:0.06em;opacity:0.6;margin-top:1px;font-family:'Cormorant Garamond',serif;text-transform:none;}
+.tab-btn.active{background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--navy);}
+.tab-btn.active .tab-sub{color:rgba(7,16,24,0.7);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* CALC */
+.calculator{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 1.5rem 4rem;}
+
+/* STEP CARD */
+.step-card{background:rgba(15,32,53,0.7);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:1.5rem;}
+.step-card.active{border-color:rgba(201,168,76,0.4);}
+.step-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+.step-num{font-family:'Cinzel',serif;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--navy);font-size:0.82rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-title{font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);}
+.step-sub{font-size:0.85rem;color:rgba(247,240,227,0.5);margin-top:2px;}
+
+/* SUBJECT GRID */
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:0.8rem;}
+.subject-btn{border:1.5px solid rgba(201,168,76,0.2);border-radius:10px;background:rgba(201,168,76,0.04);padding:0.85rem 0.8rem;cursor:pointer;transition:all 0.2s;text-align:left;position:relative;overflow:hidden;}
+.subject-btn:hover{border-color:rgba(201,168,76,0.4);background:rgba(201,168,76,0.08);}
+.subject-btn.selected{border-color:var(--gold);background:rgba(201,168,76,0.12);}
+.subject-btn.selected::after{content:'✓';position:absolute;top:7px;right:9px;color:var(--gold);font-size:0.82rem;}
+.subject-icon{font-size:1.4rem;margin-bottom:5px;display:block;}
+.subject-name{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.07em;color:var(--gold-light);display:block;margin-bottom:2px;}
+.subject-ar{font-family:'Amiri',serif;font-size:0.88rem;color:rgba(201,168,76,0.4);direction:rtl;display:block;}
+
+/* LESSON MIX */
+.lesson-mix{display:flex;flex-direction:column;gap:0.8rem;margin-top:1rem;}
+.lesson-mix-row{display:flex;align-items:center;justify-content:space-between;background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:10px;padding:0.65rem 1rem;gap:1rem;flex-wrap:wrap;}
+.mix-subject-label{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.07em;color:var(--gold-light);flex:1;min-width:120px;}
+.qty-control{display:flex;align-items:center;gap:0.6rem;}
+.qty-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(201,168,76,0.35);background:transparent;color:var(--gold);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.qty-btn:hover{background:rgba(201,168,76,0.12);border-color:var(--gold);}
+.qty-num{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:#fff;width:26px;text-align:center;}
+.qty-label{font-size:0.76rem;color:rgba(247,240,227,0.4);min-width:55px;}
+
+/* FORMAT & WEEKS GRID */
+.format-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.9rem;}
+.format-btn{border:1.5px solid rgba(201,168,76,0.2);border-radius:10px;background:rgba(201,168,76,0.04);padding:1rem;cursor:pointer;transition:all 0.2s;text-align:left;position:relative;}
+.format-btn:hover{border-color:rgba(201,168,76,0.4);background:rgba(201,168,76,0.08);}
+.format-btn.selected{border-color:var(--gold);background:rgba(201,168,76,0.12);}
+.format-btn.selected::after{content:'✓';position:absolute;top:9px;right:11px;color:var(--gold);font-size:0.85rem;}
+.format-icon{font-size:1.5rem;margin-bottom:7px;display:block;}
+.format-name{font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.08em;color:var(--gold-light);display:block;margin-bottom:3px;}
+.format-price{font-size:1rem;color:#fff;display:block;margin-bottom:2px;}
+.format-hint{font-size:0.72rem;color:rgba(201,168,76,0.55);}
+.format-desc{font-size:0.78rem;color:rgba(247,240,227,0.4);}
+
+/* FAMILY MEMBERS */
+.member-counter{display:flex;align-items:center;gap:1.5rem;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:1.2rem 1.5rem;}
+.member-label{font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.1em;color:var(--gold);}
+.member-note{font-size:0.82rem;color:rgba(247,240,227,0.45);margin-top:3px;}
+.family-discount-bar{margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:0.5rem;}
+.fd-tier{border-radius:8px;padding:0.6rem 0.7rem;text-align:center;border:1px solid transparent;transition:all 0.3s;}
+.fd-tier .fd-members{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.08em;color:rgba(247,240,227,0.5);}
+.fd-tier .fd-disc{font-size:1.1rem;font-weight:600;color:rgba(247,240,227,0.3);}
+.fd-tier.active-tier{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.35);}
+.fd-tier.active-tier .fd-members{color:var(--gold);}
+.fd-tier.active-tier .fd-disc{color:var(--gold-light);}
+
+/* SUMMARY */
+.summary-card{background:linear-gradient(135deg,rgba(15,32,53,0.95),rgba(7,16,24,0.98));border:1.5px solid rgba(201,168,76,0.35);border-radius:16px;padding:2rem;margin-top:1.5rem;transition:all 0.3s;}
+.summary-card.hidden{display:none;}
+.summary-title{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);}
+.summary-lines{display:flex;flex-direction:column;gap:0.45rem;margin:1rem 0;}
+.summary-line{display:flex;justify-content:space-between;align-items:baseline;font-size:0.88rem;color:rgba(247,240,247,0.65);padding-bottom:0.35rem;border-bottom:1px solid rgba(201,168,76,0.08);}
+.summary-line:last-child{border:none;}
+.summary-line span:last-child{color:#fff;font-weight:500;}
+.summary-total-row{display:flex;justify-content:space-between;align-items:baseline;padding-top:0.8rem;border-top:1px solid rgba(201,168,76,0.25);margin-bottom:1.4rem;}
+.summary-total-label{font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+.summary-total-price{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:700;color:var(--gold-light);line-height:1;}
+.summary-total-price sup{font-size:0.5em;vertical-align:0.6em;}
+.summary-total-price .per{font-size:0.75rem;color:rgba(201,168,76,0.55);font-weight:400;}
+.old-price{font-size:1.1rem;color:#aaa;text-decoration:line-through;text-decoration-color:#e74c3c;margin-right:0.4rem;}
+.disc-note{font-size:0.78rem;margin-top:3px;display:none;}
+.recap-chips{display:flex;flex-wrap:wrap;gap:0.45rem;margin:0.8rem 0;}
+.chip{font-size:0.74rem;padding:3px 10px;border-radius:20px;border:1px solid;}
+
+/* BUTTONS */
+.btn-book{display:block;width:100%;background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light));color:var(--navy);font-family:'Cinzel',serif;font-size:0.86rem;font-weight:600;letter-spacing:0.1em;padding:1rem;border-radius:10px;text-decoration:none;text-align:center;border:none;cursor:pointer;transition:opacity 0.2s,transform 0.15s;margin-bottom:0.8rem;}
+.btn-book:hover{opacity:0.9;transform:translateY(-1px);}
+.btn-whatsapp{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:rgba(37,211,102,0.1);border:1.5px solid rgba(37,211,102,0.35);color:#25d366;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.08em;padding:0.85rem;border-radius:10px;text-decoration:none;cursor:pointer;transition:all 0.2s;margin-bottom:0.8rem;}
+.btn-whatsapp:hover{background:rgba(37,211,102,0.2);}
+.btn-edit{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:'Cinzel',serif;font-size:0.66rem;letter-spacing:0.1em;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+.btn-edit:hover{background:rgba(201,168,76,0.2);}
+.btn-freetrial{display:block;width:100%;background:transparent;border:1.5px solid rgba(201,168,76,0.3);color:var(--gold);font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.08em;padding:0.85rem;border-radius:10px;text-decoration:none;text-align:center;cursor:pointer;transition:all 0.2s;margin-top:0.8rem;}
+.btn-freetrial:hover{background:rgba(201,168,76,0.08);}
+
+/* NOTE */
+.note-box{background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:10px;padding:0.85rem 1rem;font-size:0.83rem;color:rgba(247,240,227,0.55);line-height:1.6;margin-top:1rem;}
+.note-box strong{color:var(--gold);}
+.section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(201,168,76,0.22),transparent);margin:0.7rem 0;}
+
+/* BIG WHATSAPP BUTTON */
+.btn-wa-main{
+  display:flex;align-items:center;gap:1rem;width:100%;
+  background:linear-gradient(135deg,#128C7E,#25d366);
+  color:#fff;border:none;border-radius:14px;
+  padding:1.2rem 1.5rem;
+  text-decoration:none;cursor:pointer;
+  transition:all 0.2s;
+  box-shadow:0 4px 20px rgba(37,211,102,0.3);
+  margin-bottom:0.8rem;
+}
+.btn-wa-main:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 28px rgba(37,211,102,0.45);
+  filter:brightness(1.05);
+}
+.wa-hint{
+  text-align:center;
+  font-size:0.8rem;
+  color:rgba(247,240,227,0.45);
+  margin-top:0.2rem;
+  font-style:italic;
+}
+
+@media(max-width:600px){
+  .subject-grid{grid-template-columns:repeat(2,1fr);}
+  .format-grid{grid-template-columns:1fr 1fr;}
+  .tabs{flex-direction:column;}
+  .lesson-mix-row{flex-direction:column;align-items:flex-start;}
+  .btn-wa-main{flex-direction:column;text-align:center;gap:0.6rem;}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.step-card{animation:fadeUp 0.45s ease both;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="32" height="32">
+      <defs>
+        <radialGradient id="nb" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="#102030"/><stop offset="100%" stop-color="#060e18"/></radialGradient>
+        <linearGradient id="nl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0D878"/><stop offset="50%" stop-color="#C9A84C"/><stop offset="100%" stop-color="#8B6914"/></linearGradient>
+      </defs>
+      <rect x="4" y="4" width="412" height="412" rx="72" ry="72" fill="url(#nb)"/>
+      <rect x="14" y="14" width="392" height="392" rx="64" ry="64" fill="none" stroke="#C9A84C" stroke-width="1" opacity="0.35"/>
+      <g transform="translate(210,218)">
+        <path d="M-100,-78 L-10,-78 L-10,76 L-96,76 C-99,76 -100,74 -100,70 Z" fill="none" stroke="url(#nl)" stroke-width="2.5"/>
+        <path d="M100,-78 L10,-78 L10,76 L96,76 C99,76 100,74 100,70 Z" fill="none" stroke="url(#nl)" stroke-width="2.5"/>
+        <line x1="-4" y1="-78" x2="-4" y2="76" stroke="#C9A84C" stroke-width="2.2" opacity="0.7"/>
+        <line x1="4" y1="-78" x2="4" y2="76" stroke="#C9A84C" stroke-width="2.2" opacity="0.7"/>
+      </g>
+      <g transform="translate(210,210) rotate(-40)">
+        <rect x="-7" y="-148" width="14" height="218" rx="6" fill="url(#nl)" opacity="0.88"/>
+        <path d="M-7,70 L0,102 L7,70 Z" fill="#F0D878" opacity="0.96"/>
+      </g>
+      <line x1="52" y1="330" x2="368" y2="330" stroke="#C9A84C" stroke-width="0.8" opacity="0.4"/>
+      <text x="210" y="368" font-family="Cinzel, serif" font-size="52" font-weight="600" fill="url(#nl)" opacity="0.92" text-anchor="middle" dominant-baseline="middle" letter-spacing="18">QAT</text>
+    </svg>
+    Quran Arabic Tutor
+  </a>
+  <a href="index.html" class="nav-back">← Back to website</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Personalised Learning</div>
+  <h1>Build Your <em>Own Program</em></h1>
+  <p>Mix subjects, choose your format and frequency — see your exact price instantly.</p>
+  <div class="hero-arabic">صمِّم برنامجك الخاص</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('individual',this)">
+      <span class="tab-icon">👤</span>
+      <span class="tab-text">
+        <span class="tab-title">INDIVIDUAL</span>
+        <span class="tab-sub">Private lessons for one student</span>
+      </span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('family',this)">
+      <span class="tab-icon">👨‍👩‍👧‍👦</span>
+      <span class="tab-text">
+        <span class="tab-title">FAMILY & GROUP</span>
+        <span class="tab-sub">Group rates + family discounts from 3rd member</span>
+      </span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     INDIVIDUAL TAB
+══════════════════════════════ -->
+<div id="tab-individual" class="tab-pane active">
+<div class="calculator">
+
+  <!-- Step 1: Subjects -->
+  <div class="step-card active">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div><div class="step-title">Choose Your Subjects</div><div class="step-sub">Select one or more — mix freely</div></div>
+    </div>
+    <div class="subject-grid" id="ind-subjects">
+      <button class="subject-btn" data-subject="quran" onclick="indToggleSubject(this)">
+        <span class="subject-icon">📖</span><span class="subject-name">Quran & Tajweed</span><span class="subject-ar">القرآن والتجويد</span>
+      </button>
+      <button class="subject-btn" data-subject="arabic" onclick="indToggleSubject(this)">
+        <span class="subject-icon">✒️</span><span class="subject-name">Arabic Language</span><span class="subject-ar">اللغة العربية</span>
+      </button>
+      <button class="subject-btn" data-subject="islamic" onclick="indToggleSubject(this)">
+        <span class="subject-icon">☪️</span><span class="subject-name">Islamic Studies</span><span class="subject-ar">العلوم الإسلامية</span>
+      </button>
+      <button class="subject-btn" data-subject="children" onclick="indToggleSubject(this)">
+        <span class="subject-icon">⭐</span><span class="subject-name">Children's Program</span><span class="subject-ar">برنامج الأطفال</span>
+      </button>
+    </div>
+    <div class="lesson-mix" id="ind-mixWrap" style="display:none;">
+      <div class="section-divider" style="margin-top:1rem;"></div>
+      <div style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.14em;color:var(--gold);opacity:0.65;margin-bottom:0.2rem;">LESSONS PER WEEK — PER SUBJECT</div>
+      <div id="ind-mixRows"></div>
+    </div>
+  </div>
+
+  <!-- Step 2: Format -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div><div class="step-title">Choose Your Format</div><div class="step-sub">Online or in-person in Tallinn</div></div>
+    </div>
+    <div class="format-grid">
+      <button class="format-btn" data-format="online_individual" data-price="11.99" onclick="indSelectFormat(this)">
+        <span class="format-icon">💻</span>
+        <span class="format-name">Online · Private</span>
+        <span class="format-price">€11.99 / 45 min</span>
+        <span class="format-desc">1-to-1 via Google Meet</span>
+      </button>
+      <button class="format-btn" data-format="inperson_individual" data-price="14.99" onclick="indSelectFormat(this)">
+        <span class="format-icon">📍</span>
+        <span class="format-name">In-Person · Private</span>
+        <span class="format-price">€14.99 / 45 min</span>
+        <span class="format-desc">Face-to-face in Tallinn</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 3: Weeks -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div><div class="step-title">How Many Weeks?</div><div class="step-sub">Choose your commitment period</div></div>
+    </div>
+    <div class="format-grid" id="ind-weeksGrid">
+      <button class="format-btn" data-weeks="1" onclick="indSelectWeeks(this)">
+        <span class="format-icon">📅</span><span class="format-name">1 Week</span>
+        <span class="format-hint" id="ind-w1hint"></span><span class="format-desc">Try it out</span>
+      </button>
+      <button class="format-btn" data-weeks="2" onclick="indSelectWeeks(this)">
+        <span class="format-icon">📆</span><span class="format-name">2 Weeks</span>
+        <span class="format-hint" id="ind-w2hint"></span><span class="format-desc">Short commitment</span>
+      </button>
+      <button class="format-btn" data-weeks="4" onclick="indSelectWeeks(this)">
+        <span class="format-icon">🗓️</span><span class="format-name">4 Weeks</span>
+        <span class="format-hint" id="ind-w4hint"></span><span class="format-desc">1 month</span>
+      </button>
+      <button class="format-btn" data-weeks="8" onclick="indSelectWeeks(this)">
+        <span class="format-icon">⭐</span><span class="format-name">8 Weeks</span>
+        <span class="format-hint" id="ind-w8hint"></span><span class="format-desc">2 months</span>
+      </button>
+      <button class="format-btn" data-weeks="12" onclick="indSelectWeeks(this)">
+        <span class="format-icon">🏆</span><span class="format-name">12 Weeks</span>
+        <span class="format-hint" id="ind-w12hint"></span><span class="format-desc">3 months</span>
+      </button>
+      <button class="format-btn" data-weeks="custom" onclick="indSelectWeeks(this)">
+        <span class="format-icon">✏️</span><span class="format-name">Custom</span>
+        <span class="format-desc">Enter exact weeks</span>
+      </button>
+    </div>
+    <div id="ind-customWrap" style="display:none;margin-top:1rem;">
+      <div style="display:flex;align-items:center;gap:1rem;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:0.9rem 1.2rem;">
+        <span style="font-family:'Cinzel',serif;font-size:0.73rem;letter-spacing:0.1em;color:var(--gold);">NUMBER OF WEEKS</span>
+        <div class="qty-control" style="margin-left:auto;">
+          <button class="qty-btn" onclick="indChangeCustomWeeks(-1)">−</button>
+          <span class="qty-num" id="ind-customNum">1</span>
+          <button class="qty-btn" onclick="indChangeCustomWeeks(1)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Summary -->
+  <div class="summary-card hidden" id="ind-summary">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div><div class="step-num" style="display:inline-flex;margin-right:0.6rem;">4</div><span class="step-title" id="ind-summaryTitle">Your Program Summary</span></div>
+      <button class="btn-edit" onclick="editSelections('ind-summary')">✏️ EDIT</button>
+    </div>
+    <div class="recap-chips" id="ind-recap"></div>
+    <div class="section-divider"></div>
+    <div class="summary-lines" id="ind-lines"></div>
+    <div class="section-divider"></div>
+    <div class="summary-total-row">
+      <div>
+        <div class="summary-total-label" id="ind-totalLabel">Total</div>
+        <div class="disc-note" id="ind-discNote"></div>
+      </div>
+      <div style="text-align:right;">
+        <span class="old-price" id="ind-oldPrice"></span>
+        <div class="summary-total-price" id="ind-totalPrice">€0</div>
+      </div>
+    </div>
+    <div id="ind-bookBtns"></div>
+    <div class="note-box" style="margin-top:0.8rem;">
+      <strong>💡 Discount tiers:</strong> 4–7 lessons 10% · 8–11 lessons 13% · 12–19 lessons 16% · 20–29 lessons 18% · 30+ lessons 20%
+    </div>
+    <a href="https://cal.com/quranarabictutor/free-trial-lesson" class="btn-freetrial" target="_blank">🎁 Book Free Trial First</a>
+  </div>
+
+</div>
+</div><!-- end individual tab -->
+
+<!-- ══════════════════════════════
+     FAMILY TAB
+══════════════════════════════ -->
+<div id="tab-family" class="tab-pane">
+<div class="calculator">
+
+  <!-- Step 1: Members -->
+  <div class="step-card active">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div><div class="step-title">How Many Family Members?</div><div class="step-sub">From 3rd member onwards — extra family discount applies</div></div>
+    </div>
+    <div class="member-counter">
+      <div>
+        <div class="member-label">FAMILY MEMBERS</div>
+        <div class="member-note">Minimum 2 members to access family pricing</div>
+      </div>
+      <div class="qty-control" style="margin-left:auto;">
+        <button class="qty-btn" onclick="fam.changeMembers(-1)">−</button>
+        <span class="qty-num" id="fam-memberNum">2</span>
+        <button class="qty-btn" onclick="fam.changeMembers(1)">+</button>
+        <span class="qty-label">members</span>
+      </div>
+    </div>
+    <!-- Family discount visual bar -->
+    <div class="family-discount-bar" id="fam-discBar" style="margin-top:1rem;">
+      <div class="fd-tier" id="fdt-2"><div class="fd-members">2 members</div><div class="fd-disc">Group rate</div></div>
+      <div class="fd-tier" id="fdt-3"><div class="fd-members">3 members</div><div class="fd-disc">+5% off</div></div>
+      <div class="fd-tier" id="fdt-4"><div class="fd-members">4 members</div><div class="fd-disc">+10% off</div></div>
+      <div class="fd-tier" id="fdt-5"><div class="fd-members">5+ members</div><div class="fd-disc">+15% off</div></div>
+    </div>
+  </div>
+
+  <!-- Step 2: Subjects -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div><div class="step-title">Choose Subjects</div><div class="step-sub">All family members attend the same subject per session</div></div>
+    </div>
+    <div class="subject-grid" id="fam-subjects">
+      <button class="subject-btn" data-subject="quran" onclick="famToggleSubject(this)">
+        <span class="subject-icon">📖</span><span class="subject-name">Quran & Tajweed</span><span class="subject-ar">القرآن والتجويد</span>
+      </button>
+      <button class="subject-btn" data-subject="arabic" onclick="famToggleSubject(this)">
+        <span class="subject-icon">✒️</span><span class="subject-name">Arabic Language</span><span class="subject-ar">اللغة العربية</span>
+      </button>
+      <button class="subject-btn" data-subject="islamic" onclick="famToggleSubject(this)">
+        <span class="subject-icon">☪️</span><span class="subject-name">Islamic Studies</span><span class="subject-ar">العلوم الإسلامية</span>
+      </button>
+      <button class="subject-btn" data-subject="children" onclick="famToggleSubject(this)">
+        <span class="subject-icon">⭐</span><span class="subject-name">Children's Program</span><span class="subject-ar">برنامج الأطفال</span>
+      </button>
+    </div>
+    <div class="lesson-mix" id="fam-mixWrap" style="display:none;">
+      <div class="section-divider" style="margin-top:1rem;"></div>
+      <div style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.14em;color:var(--gold);opacity:0.65;margin-bottom:0.2rem;">LESSONS PER WEEK — PER SUBJECT</div>
+      <div id="fam-mixRows"></div>
+    </div>
+  </div>
+
+  <!-- Step 3: Format -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div><div class="step-title">Choose Format</div><div class="step-sub">Price shown is per person</div></div>
+    </div>
+    <div class="format-grid">
+      <button class="format-btn" data-format="online_group" data-price="6.99" onclick="famSelectFormat(this)">
+        <span class="format-icon">💻</span>
+        <span class="format-name">Online · Group</span>
+        <span class="format-price">€6.99 / person</span>
+        <span class="format-desc">Via Google Meet, max 5</span>
+      </button>
+      <button class="format-btn" data-format="inperson_group" data-price="9.99" onclick="famSelectFormat(this)">
+        <span class="format-icon">📍</span>
+        <span class="format-name">In-Person · Group</span>
+        <span class="format-price">€9.99 / person</span>
+        <span class="format-desc">In Tallinn, max 5</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 4: Weeks -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div><div class="step-title">How Many Weeks?</div><div class="step-sub">Longer commitment = more savings</div></div>
+    </div>
+    <div class="format-grid" id="fam-weeksGrid">
+      <button class="format-btn" data-weeks="1" onclick="famSelectWeeks(this)">
+        <span class="format-icon">📅</span><span class="format-name">1 Week</span>
+        <span class="format-hint" id="fam-w1hint"></span><span class="format-desc">Try it out</span>
+      </button>
+      <button class="format-btn" data-weeks="2" onclick="famSelectWeeks(this)">
+        <span class="format-icon">📆</span><span class="format-name">2 Weeks</span>
+        <span class="format-hint" id="fam-w2hint"></span><span class="format-desc">Short commitment</span>
+      </button>
+      <button class="format-btn" data-weeks="4" onclick="famSelectWeeks(this)">
+        <span class="format-icon">🗓️</span><span class="format-name">4 Weeks</span>
+        <span class="format-hint" id="fam-w4hint"></span><span class="format-desc">1 month</span>
+      </button>
+      <button class="format-btn" data-weeks="8" onclick="famSelectWeeks(this)">
+        <span class="format-icon">⭐</span><span class="format-name">8 Weeks</span>
+        <span class="format-hint" id="fam-w8hint"></span><span class="format-desc">2 months</span>
+      </button>
+      <button class="format-btn" data-weeks="12" onclick="famSelectWeeks(this)">
+        <span class="format-icon">🏆</span><span class="format-name">12 Weeks</span>
+        <span class="format-hint" id="fam-w12hint"></span><span class="format-desc">3 months</span>
+      </button>
+      <button class="format-btn" data-weeks="custom" onclick="famSelectWeeks(this)">
+        <span class="format-icon">✏️</span><span class="format-name">Custom</span><span class="format-desc">Enter exact weeks</span>
+      </button>
+    </div>
+    <div id="fam-customWrap" style="display:none;margin-top:1rem;">
+      <div style="display:flex;align-items:center;gap:1rem;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:0.9rem 1.2rem;">
+        <span style="font-family:'Cinzel',serif;font-size:0.73rem;letter-spacing:0.1em;color:var(--gold);">NUMBER OF WEEKS</span>
+        <div class="qty-control" style="margin-left:auto;">
+          <button class="qty-btn" onclick="famChangeCustomWeeks(-1)">−</button>
+          <span class="qty-num" id="fam-customNum">1</span>
+          <button class="qty-btn" onclick="famChangeCustomWeeks(1)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5: Summary -->
+  <div class="summary-card hidden" id="fam-summary">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div><div class="step-num" style="display:inline-flex;margin-right:0.6rem;">5</div><span class="step-title" id="fam-summaryTitle">Family Program Summary</span></div>
+      <button class="btn-edit" onclick="editSelections('fam-summary')">✏️ EDIT</button>
+    </div>
+    <div class="recap-chips" id="fam-recap"></div>
+    <div class="section-divider"></div>
+    <div class="summary-lines" id="fam-lines"></div>
+    <div class="section-divider"></div>
+    <div class="summary-total-row">
+      <div>
+        <div class="summary-total-label" id="fam-totalLabel">Total</div>
+        <div class="disc-note" id="fam-discNote"></div>
+      </div>
+      <div style="text-align:right;">
+        <span class="old-price" id="fam-oldPrice"></span>
+        <div class="summary-total-price" id="fam-totalPrice">€0</div>
+      </div>
+    </div>
+    <div id="fam-bookBtns"></div>
+    <div class="note-box" style="margin-top:0.8rem;">
+      <strong>💡 Combined discounts:</strong> Family discount (3 members +5%, 4 members +10%, 5+ members +15%) stacks with frequency discount (4–7 lessons 10% … 30+ lessons 20%).
+    </div>
+    <a href="https://cal.com/quranarabictutor/free-trial-lesson" class="btn-freetrial" target="_blank">🎁 Book Free Trial First</a>
+  </div>
+
+</div>
+</div><!-- end family tab -->
+
+<script>
+const SUBJECT_LABELS = { quran:'Quran & Tajweed', arabic:'Arabic Language', islamic:'Islamic Studies', children:"Children's Program" };
+const CAL_LINKS = {
+  online_individual:'https://cal.com/quranarabictutor/online-individual-lesson',
+  inperson_individual:'https://cal.com/quranarabictutor/face-to-face-tallinn',
+  online_group:'https://cal.com/quranarabictutor/group-lesson-online',
+  inperson_group:'https://cal.com/quranarabictutor/group-lesson-in-person',
+};
+const WA = '37256382946';
+
+// ── TABS ──
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ── DISCOUNT (frequency) ──
+function getDiscount(lessons) {
+  if (lessons >= 30) return { pct:20, label:'🏆 Loyalty 20% off' };
+  if (lessons >= 20) return { pct:18, label:'⭐ Commitment 18% off' };
+  if (lessons >= 12) return { pct:16, label:'🎯 Regular 16% off' };
+  if (lessons >= 8)  return { pct:13, label:'✓ Early 13% off' };
+  if (lessons >= 4)  return { pct:10, label:'✓ Starter 10% off' };
+  return { pct:0, label:'' };
+}
+
+// ── FAMILY MEMBER DISCOUNT ──
+function getFamilyDiscount(members) {
+  if (members >= 5) return { pct:15, label:'👨‍👩‍👧‍👦 Family 15% off (5+ members)' };
+  if (members >= 4) return { pct:10, label:'👨‍👩‍👧 Family 10% off (4 members)' };
+  if (members >= 3) return { pct:5,  label:'👨‍👩‍👦 Family 5% off (3 members)' };
+  return { pct:0, label:'Group rate (2 members)' };
+}
+
+// ── TOTAL PRICE DISPLAY ──
+function formatPrice(val) {
+  const euros = Math.floor(val);
+  const cents = String(Math.round((val % 1)*100)).padStart(2,'0');
+  return `<sup>€</sup>${euros}<sup style="font-size:0.38em;vertical-align:0.7em;">.${cents}</sup>`;
+}
+
+// ── EDIT SCROLL ──
+function editSelections(summaryId) {
+  const tabPane = document.getElementById(summaryId).closest('.tab-pane');
+  tabPane.querySelector('.step-card').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ════════════════════════════
+   INDIVIDUAL STATE + LOGIC
+════════════════════════════ */
+const ind = {
+  subjects: {}, format: null, price: 0, weeks: null,
+
+  toggleSubject(btn) {
+    const s = btn.dataset.subject;
+    btn.classList.toggle('selected');
+    if (btn.classList.contains('selected')) this.subjects[s] = 1;
+    else delete this.subjects[s];
+    this.renderMix(); this.updateHints(); this.render();
+  },
+
+  renderMix() {
+    const keys = Object.keys(this.subjects);
+    const wrap = document.getElementById('ind-mixWrap');
+    const rows = document.getElementById('ind-mixRows');
+    if (!keys.length) { wrap.style.display='none'; return; }
+    wrap.style.display = 'flex';
+    rows.innerHTML = keys.map(s => `
+      <div class="lesson-mix-row">
+        <div class="mix-subject-label">${SUBJECT_LABELS[s]}</div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="ind.changeQty('${s}',-1)">−</button>
+          <span class="qty-num" id="ind-qty-${s}">${this.subjects[s]}</span>
+          <button class="qty-btn" onclick="ind.changeQty('${s}',1)">+</button>
+          <span class="qty-label">× / week</span>
+        </div>
+      </div>`).join('');
+  },
+
+  changeQty(s, d) {
+    this.subjects[s] = Math.max(1, Math.min(5, (this.subjects[s]||1) + d));
+    const el = document.getElementById('ind-qty-'+s);
+    if (el) el.textContent = this.subjects[s];
+    this.updateHints(); this.render();
+  },
+
+  selectFormat(btn) {
+    document.querySelectorAll('#tab-individual .format-grid:nth-of-type(1) .format-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    this.format = btn.dataset.format; this.price = parseFloat(btn.dataset.price);
+    this.updateHints(); this.render();
+  },
+
+  selectWeeks(btn) {
+    document.querySelectorAll('#ind-weeksGrid .format-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const w = btn.dataset.weeks;
+    if (w==='custom') {
+      this.weeks = parseInt(document.getElementById('ind-customNum').textContent)||1;
+      document.getElementById('ind-customWrap').style.display='block';
+    } else {
+      this.weeks = parseInt(w);
+      document.getElementById('ind-customWrap').style.display='none';
+    }
+    this.render();
+  },
+
+  changeCustomWeeks(d) {
+    const el = document.getElementById('ind-customNum');
+    const v = Math.max(1, Math.min(52, (parseInt(el.textContent)||1)+d));
+    el.textContent = v; this.weeks = v; this.render();
+  },
+
+  updateHints() {
+    const lpw = Object.values(this.subjects).reduce((a,b)=>a+b,0);
+    [1,2,4,8,12].forEach(w => {
+      const el = document.getElementById('ind-w'+w+'hint');
+      if (!el) return;
+      if (!lpw || !this.price) { el.textContent=''; return; }
+      const total = lpw*w;
+      const d = getDiscount(total);
+      if (d.pct>0) { el.textContent=d.label; el.style.color=d.pct>=18?'#f0c040':d.pct>=13?'#7ec8e3':'#27ae60'; }
+      else { el.textContent=`${4-total} more for 10% off`; el.style.color='rgba(247,240,227,0.35)'; }
+      el.style.display='block';
+    });
+  },
+
+  render() {
+    const card = document.getElementById('ind-summary');
+    const keys = Object.keys(this.subjects);
+    const weeks = this.weeks || 0;
+    if (!keys.length || !this.format || !weeks) { card.classList.add('hidden'); return; }
+    const was = card.classList.contains('hidden');
+    card.classList.remove('hidden');
+    if (was) setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+
+    const wLabel = weeks===1?'1 Week':`${weeks} Weeks`;
+    document.getElementById('ind-summaryTitle').textContent = `Your Program — ${wLabel}`;
+    document.getElementById('ind-totalLabel').textContent = `Total for ${wLabel}`;
+
+    // Recap chips
+    const fmtName = {online_individual:'Online · Private',inperson_individual:'In-Person · Private'}[this.format];
+    let chips = keys.map(s=>`<span class="chip" style="background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.3);color:#E8C96A;">${SUBJECT_LABELS[s]} ×${this.subjects[s]}/wk</span>`);
+    chips.push(`<span class="chip" style="background:rgba(29,92,122,0.2);border-color:rgba(29,92,122,0.4);color:#7ec8e3;">${fmtName}</span>`);
+    chips.push(`<span class="chip" style="background:rgba(39,174,96,0.1);border-color:rgba(39,174,96,0.3);color:#2ecc71;">${wLabel}</span>`);
+    document.getElementById('ind-recap').innerHTML = chips.join('');
+
+    // Lines
+    let total=0, lines=[];
+    keys.forEach(s=>{
+      const n=this.subjects[s]*weeks, sub=n*this.price; total+=n;
+      lines.push(`<div class="summary-line"><span>${SUBJECT_LABELS[s]} — ${this.subjects[s]}×/wk × ${weeks} wk${weeks>1?'s':''}</span><span>${n} lessons · €${sub.toFixed(2)}</span></div>`);
+    });
+    lines.push(`<div class="summary-line" style="color:rgba(247,240,227,0.4);font-size:0.82rem;"><span>Total lessons</span><span>${total}</span></div>`);
+    document.getElementById('ind-lines').innerHTML = lines.join('');
+
+    // Price
+    const raw = total*this.price;
+    const disc = getDiscount(total);
+    const final = disc.pct>0 ? raw*(1-disc.pct/100) : raw;
+    const discEl = document.getElementById('ind-discNote');
+    const oldEl  = document.getElementById('ind-oldPrice');
+    if (disc.pct>0) {
+      discEl.textContent=disc.label; discEl.style.display='block';
+      discEl.style.color=disc.pct>=18?'#f0c040':disc.pct>=13?'#7ec8e3':'#27ae60';
+      oldEl.textContent=`€${raw.toFixed(2)}`; oldEl.style.display='inline';
+    } else { discEl.style.display='none'; oldEl.style.display='none'; }
+    document.getElementById('ind-totalPrice').innerHTML = formatPrice(final)+`<span class="per"> / ${wLabel.toLowerCase()}</span>`;
+
+    // Buttons
+    const subjList = keys.map(s=>`${SUBJECT_LABELS[s]} (${this.subjects[s]}x/wk)`).join(', ');
+    const savingsPct = disc.pct > 0 ? ` (${disc.pct}% discount)` : '';
+    const waMsg = encodeURIComponent(
+`Hi Ahmed! I used the calculator on your website and would like to book:
+
+SUBJECTS & FREQUENCY
+${keys.map(s => '- ' + SUBJECT_LABELS[s] + ': ' + ind.subjects[s] + ' lesson(s)/week').join('\n')}
+
+DURATION: ${wLabel} (${total} lessons total)
+FORMAT: ${fmtName[ind.format]}\nPRICE/LESSON:€${ind.price.toFixed(2)}${disc.pct > 0 ? '\nDISCOUNT: ' + disc.pct + '% off' : ''}
+TOTAL TO PAY: €${final.toFixed(2)}${savingsPct}
+
+Please send me the payment link to confirm my booking. Thank you!`
+    );
+    const isMulti = keys.length>1;
+    document.getElementById('ind-bookBtns').innerHTML = `
+      <a href="https://wa.me/${WA}?text=${waMsg}" class="btn-wa-main" target="_blank">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span>
+          <span style="display:block;font-size:0.72rem;opacity:0.75;letter-spacing:0.1em;margin-bottom:2px;">GET YOUR PAYMENT LINK</span>
+          <span style="display:block;font-size:1rem;">Send My Program to Ahmed on WhatsApp</span>
+        </span>
+      </a>
+      <div class="wa-hint">Ahmed will reply with your personal Stripe payment link within minutes.</div>
+    `;
+  }
+};
+
+// shorthand wrappers for onclick attributes
+function indToggleSubject(b){ind.toggleSubject(b);}
+function indSelectFormat(b){ind.selectFormat(b);}
+function indSelectWeeks(b){ind.selectWeeks(b);}
+function indChangeCustomWeeks(d){ind.changeCustomWeeks(d);}
+
+/* ════════════════════════════
+   FAMILY STATE + LOGIC
+════════════════════════════ */
+const fam = {
+  members: 2, subjects: {}, format: null, price: 0, weeks: null,
+
+  changeMembers(d) {
+    this.members = Math.max(2, Math.min(10, this.members+d));
+    document.getElementById('fam-memberNum').textContent = this.members;
+    this.updateDiscBar(); this.updateHints(); this.render();
+  },
+
+  updateDiscBar() {
+    [2,3,4,5].forEach(n => {
+      const el = document.getElementById('fdt-'+n);
+      if (!el) return;
+      el.classList.toggle('active-tier', this.members >= n && (n===5 ? true : this.members < [3,4,5,999][([2,3,4,5].indexOf(n)+1)]));
+    });
+    // highlight current tier
+    document.querySelectorAll('.fd-tier').forEach(t=>t.classList.remove('active-tier'));
+    const activeId = this.members>=5?'fdt-5':this.members>=4?'fdt-4':this.members>=3?'fdt-3':'fdt-2';
+    const el = document.getElementById(activeId);
+    if (el) el.classList.add('active-tier');
+  },
+
+  toggleSubject(btn) {
+    const s = btn.dataset.subject;
+    btn.classList.toggle('selected');
+    if (btn.classList.contains('selected')) this.subjects[s]=1;
+    else delete this.subjects[s];
+    this.renderMix(); this.updateHints(); this.render();
+  },
+
+  renderMix() {
+    const keys = Object.keys(this.subjects);
+    const wrap = document.getElementById('fam-mixWrap');
+    const rows = document.getElementById('fam-mixRows');
+    if (!keys.length) { wrap.style.display='none'; return; }
+    wrap.style.display='flex';
+    rows.innerHTML = keys.map(s=>`
+      <div class="lesson-mix-row">
+        <div class="mix-subject-label">${SUBJECT_LABELS[s]}</div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="fam.changeQty('${s}',-1)">−</button>
+          <span class="qty-num" id="fam-qty-${s}">${this.subjects[s]}</span>
+          <button class="qty-btn" onclick="fam.changeQty('${s}',1)">+</button>
+          <span class="qty-label">× / week</span>
+        </div>
+      </div>`).join('');
+  },
+
+  changeQty(s,d) {
+    this.subjects[s] = Math.max(1,Math.min(5,(this.subjects[s]||1)+d));
+    const el = document.getElementById('fam-qty-'+s);
+    if (el) el.textContent = this.subjects[s];
+    this.updateHints(); this.render();
+  },
+
+  selectFormat(btn) {
+    document.querySelectorAll('#tab-family .format-grid:nth-of-type(1) .format-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    this.format=btn.dataset.format; this.price=parseFloat(btn.dataset.price);
+    this.updateHints(); this.render();
+  },
+
+  selectWeeks(btn) {
+    document.querySelectorAll('#fam-weeksGrid .format-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const w = btn.dataset.weeks;
+    if (w==='custom') {
+      this.weeks=parseInt(document.getElementById('fam-customNum').textContent)||1;
+      document.getElementById('fam-customWrap').style.display='block';
+    } else {
+      this.weeks=parseInt(w);
+      document.getElementById('fam-customWrap').style.display='none';
+    }
+    this.render();
+  },
+
+  changeCustomWeeks(d) {
+    const el=document.getElementById('fam-customNum');
+    const v=Math.max(1,Math.min(52,(parseInt(el.textContent)||1)+d));
+    el.textContent=v; this.weeks=v; this.render();
+  },
+
+  updateHints() {
+    const lpw = Object.values(this.subjects).reduce((a,b)=>a+b,0);
+    const fd = getFamilyDiscount(this.members);
+    [1,2,4,8,12].forEach(w=>{
+      const el=document.getElementById('fam-w'+w+'hint');
+      if (!el) return;
+      if (!lpw||!this.price){el.textContent='';return;}
+      const total=lpw*w;
+      const freqD=getDiscount(total);
+      const combined=Math.min(100-(1-freqD.pct/100)*(1-fd.pct/100)*100,35);
+      if (freqD.pct>0||fd.pct>0){
+        el.textContent=`Up to ${Math.round(combined)}% off`;
+        el.style.color='#27ae60';
+      } else {
+        el.textContent=`${4-total} more for 10% off`;
+        el.style.color='rgba(247,240,227,0.35)';
+      }
+      el.style.display='block';
+    });
+  },
+
+  render() {
+    const card=document.getElementById('fam-summary');
+    const keys=Object.keys(this.subjects);
+    const weeks=this.weeks||0;
+    if (!keys.length||!this.format||!weeks){card.classList.add('hidden');return;}
+    const was=card.classList.contains('hidden');
+    card.classList.remove('hidden');
+    if (was) setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+
+    const wLabel=weeks===1?'1 Week':`${weeks} Weeks`;
+    document.getElementById('fam-summaryTitle').textContent=`Family Program — ${wLabel}`;
+    document.getElementById('fam-totalLabel').textContent=`Total for ${wLabel} (${this.members} members)`;
+
+    // Chips
+    const fmtName={online_group:'Online · Group',inperson_group:'In-Person · Group'}[this.format];
+    const fd=getFamilyDiscount(this.members);
+    let chips=keys.map(s=>`<span class="chip" style="background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.3);color:#E8C96A;">${SUBJECT_LABELS[s]} ×${this.subjects[s]}/wk</span>`);
+    chips.push(`<span class="chip" style="background:rgba(29,92,122,0.2);border-color:rgba(29,92,122,0.4);color:#7ec8e3;">${fmtName}</span>`);
+    chips.push(`<span class="chip" style="background:rgba(39,174,96,0.1);border-color:rgba(39,174,96,0.3);color:#2ecc71;">${this.members} members</span>`);
+    chips.push(`<span class="chip" style="background:rgba(39,174,96,0.1);border-color:rgba(39,174,96,0.3);color:#2ecc71;">${wLabel}</span>`);
+    document.getElementById('fam-recap').innerHTML=chips.join('');
+
+    // Lines — per member
+    let totalLessons=0, linesHTML='';
+    keys.forEach(s=>{
+      const n=this.subjects[s]*weeks, sub=n*this.price;
+      totalLessons+=n;
+      linesHTML+=`<div class="summary-line"><span>${SUBJECT_LABELS[s]} — ${this.subjects[s]}×/wk × ${weeks} wk${weeks>1?'s':''}</span><span>${n} lessons · €${sub.toFixed(2)}/person</span></div>`;
+    });
+    linesHTML+=`<div class="summary-line" style="color:rgba(247,240,227,0.4);font-size:0.82rem;"><span>Total lessons / person</span><span>${totalLessons}</span></div>`;
+    linesHTML+=`<div class="summary-line" style="color:rgba(247,240,227,0.4);font-size:0.82rem;"><span>Family members</span><span>${this.members}</span></div>`;
+
+    // Pricing
+    const rawPerPerson=totalLessons*this.price;
+    const rawTotal=rawPerPerson*this.members;
+    const freqD=getDiscount(totalLessons);
+    const famD=getFamilyDiscount(this.members);
+    // Stack discounts multiplicatively: (1-freqPct)*(1-famPct)
+    const multiplier=(1-freqD.pct/100)*(1-famD.pct/100);
+    const finalTotal=rawTotal*multiplier;
+    const finalPerPerson=rawPerPerson*multiplier;
+    const totalDiscPct=Math.round((1-multiplier)*100);
+
+    linesHTML+=`<div class="summary-line"><span>Per person (before discounts)</span><span>€${rawPerPerson.toFixed(2)}</span></div>`;
+    linesHTML+=`<div class="summary-line"><span>Per person (after discounts)</span><span style="color:#E8C96A;">€${finalPerPerson.toFixed(2)}</span></div>`;
+    document.getElementById('fam-lines').innerHTML=linesHTML;
+
+    // Discount note
+    const discEl=document.getElementById('fam-discNote');
+    const oldEl=document.getElementById('fam-oldPrice');
+    if (totalDiscPct>0) {
+      discEl.textContent=`${freqD.pct>0?freqD.label+' + ':''}${famD.pct>0?famD.label:''} = ${totalDiscPct}% total`;
+      discEl.style.display='block';
+      discEl.style.color=totalDiscPct>=25?'#f0c040':totalDiscPct>=15?'#7ec8e3':'#27ae60';
+      oldEl.textContent=`€${rawTotal.toFixed(2)}`;
+      oldEl.style.display='inline';
+    } else { discEl.style.display='none'; oldEl.style.display='none'; }
+
+    document.getElementById('fam-totalPrice').innerHTML=formatPrice(finalTotal)+`<span class="per"> / ${wLabel.toLowerCase()} total</span>`;
+
+    // Buttons
+    const subjList=keys.map(s=>`${SUBJECT_LABELS[s]} (${this.subjects[s]}x/wk)`).join(', ');
+    const waMsg = encodeURIComponent(
+`Hi Ahmed! I used the family program calculator on your website. Our details:
+
+FAMILY MEMBERS: ${this.members}
+
+SUBJECTS & FREQUENCY
+${keys.map(s => '- ' + SUBJECT_LABELS[s] + ': ' + fam.subjects[s] + ' lesson(s)/week').join('\n')}
+
+DURATION: ${wLabel}
+FORMAT: ${fmtName}
+PRICE/LESSON/PERSON: €${this.price.toFixed(2)}${freqD.pct > 0 ? '\nFREQUENCY DISCOUNT: ' + freqD.pct + '%' : ''}${famD.pct > 0 ? '\nFAMILY DISCOUNT: ' + famD.pct + '%' : ''}
+TOTAL DISCOUNT: ${totalDiscPct}%
+PER PERSON TOTAL: €${finalPerPerson.toFixed(2)}
+ALL ${this.members} MEMBERS TOTAL: €${finalTotal.toFixed(2)}
+
+Please send us a payment link. Thank you!`
+    );
+    document.getElementById('fam-bookBtns').innerHTML=`
+      <a href="https://wa.me/${WA}?text=${waMsg}" class="btn-wa-main" target="_blank">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span>
+          <span style="display:block;font-size:0.72rem;opacity:0.75;letter-spacing:0.1em;margin-bottom:2px;">GET YOUR PAYMENT LINK</span>
+          <span style="display:block;font-size:1rem;">Send My Program to Ahmed on WhatsApp</span>
+        </span>
+      </a>
+      <div class="wa-hint">Ahmed will reply with your personal Stripe payment link within minutes.</div>
+    `;
+  }
+};
+
+// shorthand wrappers
+function famToggleSubject(b){fam.toggleSubject(b);}
+function famSelectFormat(b){fam.selectFormat(b);}
+function famSelectWeeks(b){fam.selectWeeks(b);}
+function famChangeCustomWeeks(d){fam.changeCustomWeeks(d);}
+
+// init family discount bar
+fam.updateDiscBar();
+</script>
+</body>
+</html>
