@@ -14,7 +14,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{font-family:'Cormorant Garamond',serif;background:var(--navy);color:var(--cream);min-height:100vh;overflow-x:hidden;}
+body{font-family:'Cormorant Garamond',serif;background:var(--navy);color:var(--cream);min-height:100vh;overflow-x:hidden;font-variant-numeric:lining-nums;}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 10%,rgba(201,168,76,0.07) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(29,92,122,0.12) 0%,transparent 50%);pointer-events:none;z-index:0;}
 
 /* NAV */
@@ -52,6 +52,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,16,24,0.92);backdrop-fil
 .step-card.active{border-color:rgba(201,168,76,0.4);}
 .step-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
 .step-num{font-family:'Cinzel',serif;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--navy);font-size:0.82rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .summary-total-price,.qty-num,.format-price,.old-price{font-family:'Cormorant Garamond',Georgia,serif;font-variant-numeric:lining-nums;}
 .step-title{font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);}
 .step-sub{font-size:0.85rem;color:rgba(247,240,227,0.5);margin-top:2px;}
 
@@ -162,6 +163,20 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,16,24,0.92);backdrop-fil
   .tabs{flex-direction:column;}
   .lesson-mix-row{flex-direction:column;align-items:flex-start;}
   .btn-wa-main{flex-direction:column;text-align:center;gap:0.6rem;}
+  /* Fix text overflow on mobile */
+  .format-name,.format-price,.format-desc,.format-hint{word-break:break-word;overflow-wrap:break-word;}
+  .format-btn{min-width:0;overflow:hidden;}
+  .step-card{padding:1.4rem 1.1rem;}
+  .summary-total-price{font-size:2rem;}
+  .recap-chips{gap:0.35rem;}
+  .chip{font-size:0.68rem;padding:2px 8px;}
+  .tab-btn .tab-sub{display:none;}
+  .member-counter{flex-direction:column;align-items:flex-start;gap:0.8rem;}
+  .note-box{font-size:0.78rem;}
+  .wa-hint{font-size:0.72rem;}
+  /* Prevent calculator from overflowing screen */
+  .calculator{padding:0 1rem 3rem;}
+  .tabs-wrap{padding:0 1rem 1rem;}
 }
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 .step-card{animation:fadeUp 0.45s ease both;}
@@ -265,16 +280,16 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,16,24,0.92);backdrop-fil
       <div><div class="step-title">Choose Your Format</div><div class="step-sub">Online or in-person in Tallinn</div></div>
     </div>
     <div class="format-grid">
-      <button class="format-btn" data-format="online_individual" data-price="11.99" onclick="indSelectFormat(this)">
+      <button class="format-btn" data-format="online_individual" data-price="12" onclick="indSelectFormat(this)">
         <span class="format-icon">💻</span>
         <span class="format-name">Online · Private</span>
-        <span class="format-price">€11.99 / 45 min</span>
+        <span class="format-price">€12 / 45 min</span>
         <span class="format-desc">1-to-1 via Google Meet</span>
       </button>
-      <button class="format-btn" data-format="inperson_individual" data-price="14.99" onclick="indSelectFormat(this)">
+      <button class="format-btn" data-format="inperson_individual" data-price="15" onclick="indSelectFormat(this)">
         <span class="format-icon">📍</span>
         <span class="format-name">In-Person · Private</span>
-        <span class="format-price">€14.99 / 45 min</span>
+        <span class="format-price">€15 / 45 min</span>
         <span class="format-desc">Face-to-face in Tallinn</span>
       </button>
     </div>
@@ -421,16 +436,16 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,16,24,0.92);backdrop-fil
       <div><div class="step-title">Choose Format</div><div class="step-sub">Price shown is per person</div></div>
     </div>
     <div class="format-grid">
-      <button class="format-btn" data-format="online_group" data-price="6.99" onclick="famSelectFormat(this)">
+      <button class="format-btn" data-format="online_group" data-price="7" onclick="famSelectFormat(this)">
         <span class="format-icon">💻</span>
         <span class="format-name">Online · Group</span>
-        <span class="format-price">€6.99 / person</span>
+        <span class="format-price">€7 / person</span>
         <span class="format-desc">Via Google Meet, max 5</span>
       </button>
-      <button class="format-btn" data-format="inperson_group" data-price="9.99" onclick="famSelectFormat(this)">
+      <button class="format-btn" data-format="inperson_group" data-price="10" onclick="famSelectFormat(this)">
         <span class="format-icon">📍</span>
         <span class="format-name">In-Person · Group</span>
-        <span class="format-price">€9.99 / person</span>
+        <span class="format-price">€10 / person</span>
         <span class="format-desc">In Tallinn, max 5</span>
       </button>
     </div>
@@ -547,9 +562,8 @@ function getFamilyDiscount(members) {
 
 // ── TOTAL PRICE DISPLAY ──
 function formatPrice(val) {
-  const euros = Math.floor(val);
-  const cents = String(Math.round((val % 1)*100)).padStart(2,'0');
-  return `<sup>€</sup>${euros}<sup style="font-size:0.38em;vertical-align:0.7em;">.${cents}</sup>`;
+  const euros = Math.round(val);
+  return `<sup>€</sup>${euros}`;
 }
 
 // ── EDIT SCROLL ──
@@ -662,7 +676,7 @@ const ind = {
     let total=0, lines=[];
     keys.forEach(s=>{
       const n=this.subjects[s]*weeks, sub=n*this.price; total+=n;
-      lines.push(`<div class="summary-line"><span>${SUBJECT_LABELS[s]} — ${this.subjects[s]}×/wk × ${weeks} wk${weeks>1?'s':''}</span><span>${n} lessons · €${sub.toFixed(2)}</span></div>`);
+      lines.push(`<div class="summary-line"><span>${SUBJECT_LABELS[s]} — ${this.subjects[s]}×/wk × ${weeks} wk${weeks>1?'s':''}</span><span>${n} lessons · €${sub.toFixed(0)}</span></div>`);
     });
     lines.push(`<div class="summary-line" style="color:rgba(247,240,227,0.4);font-size:0.82rem;"><span>Total lessons</span><span>${total}</span></div>`);
     document.getElementById('ind-lines').innerHTML = lines.join('');
@@ -676,7 +690,7 @@ const ind = {
     if (disc.pct>0) {
       discEl.textContent=disc.label; discEl.style.display='block';
       discEl.style.color=disc.pct>=18?'#f0c040':disc.pct>=13?'#7ec8e3':'#27ae60';
-      oldEl.textContent=`€${raw.toFixed(2)}`; oldEl.style.display='inline';
+      oldEl.textContent=`€${raw.toFixed(0)}`; oldEl.style.display='inline';
     } else { discEl.style.display='none'; oldEl.style.display='none'; }
     document.getElementById('ind-totalPrice').innerHTML = formatPrice(final)+`<span class="per"> / ${wLabel.toLowerCase()}</span>`;
 
@@ -690,8 +704,8 @@ SUBJECTS & FREQUENCY
 ${keys.map(s => '- ' + SUBJECT_LABELS[s] + ': ' + ind.subjects[s] + ' lesson(s)/week').join('\n')}
 
 DURATION: ${wLabel} (${total} lessons total)
-FORMAT: ${fmtName[ind.format]}\nPRICE/LESSON:€${ind.price.toFixed(2)}${disc.pct > 0 ? '\nDISCOUNT: ' + disc.pct + '% off' : ''}
-TOTAL TO PAY: €${final.toFixed(2)}${savingsPct}
+FORMAT: ${fmtName[ind.format]}\nPRICE/LESSON:€${ind.price.toFixed(0)}${disc.pct > 0 ? '\nDISCOUNT: ' + disc.pct + '% off' : ''}
+TOTAL TO PAY: €${final.toFixed(0)}${savingsPct}
 
 Please send me the payment link to confirm my booking. Thank you!`
     );
@@ -848,7 +862,7 @@ const fam = {
     keys.forEach(s=>{
       const n=this.subjects[s]*weeks, sub=n*this.price;
       totalLessons+=n;
-      linesHTML+=`<div class="summary-line"><span>${SUBJECT_LABELS[s]} — ${this.subjects[s]}×/wk × ${weeks} wk${weeks>1?'s':''}</span><span>${n} lessons · €${sub.toFixed(2)}/person</span></div>`;
+      linesHTML+=`<div class="summary-line"><span>${SUBJECT_LABELS[s]} — ${this.subjects[s]}×/wk × ${weeks} wk${weeks>1?'s':''}</span><span>${n} lessons · €${sub.toFixed(0)}/person</span></div>`;
     });
     linesHTML+=`<div class="summary-line" style="color:rgba(247,240,227,0.4);font-size:0.82rem;"><span>Total lessons / person</span><span>${totalLessons}</span></div>`;
     linesHTML+=`<div class="summary-line" style="color:rgba(247,240,227,0.4);font-size:0.82rem;"><span>Family members</span><span>${this.members}</span></div>`;
@@ -864,8 +878,8 @@ const fam = {
     const finalPerPerson=rawPerPerson*multiplier;
     const totalDiscPct=Math.round((1-multiplier)*100);
 
-    linesHTML+=`<div class="summary-line"><span>Per person (before discounts)</span><span>€${rawPerPerson.toFixed(2)}</span></div>`;
-    linesHTML+=`<div class="summary-line"><span>Per person (after discounts)</span><span style="color:#E8C96A;">€${finalPerPerson.toFixed(2)}</span></div>`;
+    linesHTML+=`<div class="summary-line"><span>Per person (before discounts)</span><span>€${rawPerPerson.toFixed(0)}</span></div>`;
+    linesHTML+=`<div class="summary-line"><span>Per person (after discounts)</span><span style="color:#E8C96A;">€${finalPerPerson.toFixed(0)}</span></div>`;
     document.getElementById('fam-lines').innerHTML=linesHTML;
 
     // Discount note
@@ -875,7 +889,7 @@ const fam = {
       discEl.textContent=`${freqD.pct>0?freqD.label+' + ':''}${famD.pct>0?famD.label:''} = ${totalDiscPct}% total`;
       discEl.style.display='block';
       discEl.style.color=totalDiscPct>=25?'#f0c040':totalDiscPct>=15?'#7ec8e3':'#27ae60';
-      oldEl.textContent=`€${rawTotal.toFixed(2)}`;
+      oldEl.textContent=`€${rawTotal.toFixed(0)}`;
       oldEl.style.display='inline';
     } else { discEl.style.display='none'; oldEl.style.display='none'; }
 
@@ -893,10 +907,10 @@ ${keys.map(s => '- ' + SUBJECT_LABELS[s] + ': ' + fam.subjects[s] + ' lesson(s)/
 
 DURATION: ${wLabel}
 FORMAT: ${fmtName}
-PRICE/LESSON/PERSON: €${this.price.toFixed(2)}${freqD.pct > 0 ? '\nFREQUENCY DISCOUNT: ' + freqD.pct + '%' : ''}${famD.pct > 0 ? '\nFAMILY DISCOUNT: ' + famD.pct + '%' : ''}
+PRICE/LESSON/PERSON: €${this.price.toFixed(0)}${freqD.pct > 0 ? '\nFREQUENCY DISCOUNT: ' + freqD.pct + '%' : ''}${famD.pct > 0 ? '\nFAMILY DISCOUNT: ' + famD.pct + '%' : ''}
 TOTAL DISCOUNT: ${totalDiscPct}%
-PER PERSON TOTAL: €${finalPerPerson.toFixed(2)}
-ALL ${this.members} MEMBERS TOTAL: €${finalTotal.toFixed(2)}
+PER PERSON TOTAL: €${finalPerPerson.toFixed(0)}
+ALL ${this.members} MEMBERS TOTAL: €${finalTotal.toFixed(0)}
 
 Please send us a payment link. Thank you!`
     );
